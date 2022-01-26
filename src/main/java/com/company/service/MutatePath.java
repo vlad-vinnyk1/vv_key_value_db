@@ -1,7 +1,7 @@
-package com.company.operations;
+package com.company.service;
 
-import com.company.MemoryCache;
-import com.company.BloomFilter;
+import com.company.memorycache.MemoryCache;
+import com.company.bloomfilter.BloomFilterManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class MutatePath {
     private final MemoryCache memoryCache;
-    private final BloomFilter presenceBloomFilter;
+    private final BloomFilterManager bloomFilter;
 
     public void put(String key, String value) {
         try {
             memoryCache.put(key, value);
-            presenceBloomFilter.put(key);
+            bloomFilter.put(key);
         } catch (Exception e) {
             log.error("Can't add to key to database: {}.", key);
             memoryCache.remove(key);

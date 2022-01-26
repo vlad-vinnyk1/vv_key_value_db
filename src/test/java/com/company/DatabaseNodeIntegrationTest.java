@@ -1,6 +1,9 @@
 package com.company;
 
-import com.company.properties.Properties;
+import com.company.bloomfilter.BloomFilterManager;
+import com.company.config.PropertiesService;
+import com.company.memorycache.MemoryCache;
+import com.company.sstable.SSTableManager;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import lombok.SneakyThrows;
@@ -14,21 +17,21 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class DatabaseIntegrationTest {
+public class DatabaseNodeIntegrationTest {
     @Autowired
-    private Properties props;
+    private PropertiesService props;
 
     @Autowired
-    private DatabaseOperations dbMainApi;
+    private DatabaseNode node;
 
     @Autowired
-    private BloomFilter bloomFilter;
+    private BloomFilterManager bloomFilter;
 
     @Autowired
     private MemoryCache memoryCache;
 
     @Autowired
-    private SSTableHelper ssTable;
+    private SSTableManager ssTable;
 
     @SneakyThrows
     @AfterEach
@@ -43,8 +46,8 @@ public class DatabaseIntegrationTest {
         String key = "key1";
         String expected = "value1";
 
-        dbMainApi.put(key, expected);
-        Assertions.assertEquals(dbMainApi.get(key), expected);
+        node.put(key, expected);
+        Assertions.assertEquals(node.get(key), expected);
     }
 
     @Test
@@ -52,7 +55,7 @@ public class DatabaseIntegrationTest {
         String key = "key1";
         String expected = "value1";
 
-        dbMainApi.put(key, expected);
+        node.put(key, expected);
 
         Assertions.assertAll(
                 () -> Assertions.assertTrue(bloomFilter.mightContain(key)),
@@ -68,16 +71,16 @@ public class DatabaseIntegrationTest {
         Tuple2<String, String> tup3 = Tuple.of("diskKey3", "diskValue3");
         Tuple2<String, String> tup4 = Tuple.of("memoryKey1", "memoryValue1");
 
-        dbMainApi.put(tup1._1, tup1._2);
-        dbMainApi.put(tup2._1, tup2._2);
-        dbMainApi.put(tup3._1, tup3._2);
-        dbMainApi.put(tup4._1, tup4._2);
+        node.put(tup1._1, tup1._2);
+        node.put(tup2._1, tup2._2);
+        node.put(tup3._1, tup3._2);
+        node.put(tup4._1, tup4._2);
 
         Assertions.assertAll(
-                () -> Assertions.assertEquals(dbMainApi.get(tup1._1), tup1._2),
-                () -> Assertions.assertEquals(dbMainApi.get(tup2._1), tup2._2),
-                () -> Assertions.assertEquals(dbMainApi.get(tup3._1), tup3._2),
-                () -> Assertions.assertEquals(dbMainApi.get(tup4._1), tup4._2)
+                () -> Assertions.assertEquals(node.get(tup1._1), tup1._2),
+                () -> Assertions.assertEquals(node.get(tup2._1), tup2._2),
+                () -> Assertions.assertEquals(node.get(tup3._1), tup3._2),
+                () -> Assertions.assertEquals(node.get(tup4._1), tup4._2)
         );
     }
 
@@ -88,10 +91,10 @@ public class DatabaseIntegrationTest {
         Tuple2<String, String> tup3 = Tuple.of("diskKey3", "diskValue3");
         Tuple2<String, String> tup4 = Tuple.of("memoryKey1", "memoryValue1");
 
-        dbMainApi.put(tup1._1, tup1._2);
-        dbMainApi.put(tup2._1, tup2._2);
-        dbMainApi.put(tup3._1, tup3._2);
-        dbMainApi.put(tup4._1, tup4._2);
+        node.put(tup1._1, tup1._2);
+        node.put(tup2._1, tup2._2);
+        node.put(tup3._1, tup3._2);
+        node.put(tup4._1, tup4._2);
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals(memoryCache.size(), 1),
@@ -106,11 +109,11 @@ public class DatabaseIntegrationTest {
 
     @Test
     public void assertUpdateInMemory() {
-        dbMainApi.put("memoryKey1", "memoryValue1");
-        dbMainApi.update("memoryKey1", "memoryValue2Updated");
+        node.put("memoryKey1", "memoryValue1");
+        node.update("memoryKey1", "memoryValue2Updated");
 
         Assertions.assertAll(
-                () -> Assertions.assertEquals(dbMainApi.get("memoryKey1"), "memoryValue2Updated"),
+                () -> Assertions.assertEquals(node.get("memoryKey1"), "memoryValue2Updated"),
                 () -> Assertions.assertNull(ssTable.searchInLogFiles("memoryKey1"))
         );
     }
@@ -122,21 +125,21 @@ public class DatabaseIntegrationTest {
         Tuple2<String, String> tup3 = Tuple.of("diskKey3", "diskValue3");
         Tuple2<String, String> tup4 = Tuple.of("memoryKey1", "memoryValue1");
 
-        dbMainApi.put(tup1._1, tup1._2);
-        dbMainApi.put(tup2._1, tup2._2);
-        dbMainApi.put(tup3._1, tup3._2);
-        dbMainApi.put(tup4._1, tup4._2);
+        node.put(tup1._1, tup1._2);
+        node.put(tup2._1, tup2._2);
+        node.put(tup3._1, tup3._2);
+        node.put(tup4._1, tup4._2);
 
-        dbMainApi.update(tup1._1, "updatedValue1");
-        dbMainApi.update(tup2._1, "updatedValue2");
-        dbMainApi.update(tup3._1, "updatedValue3");
-        dbMainApi.update(tup4._1, "updatedValue4");
+        node.update(tup1._1, "updatedValue1");
+        node.update(tup2._1, "updatedValue2");
+        node.update(tup3._1, "updatedValue3");
+        node.update(tup4._1, "updatedValue4");
 
         Assertions.assertAll(
-                () -> Assertions.assertEquals(dbMainApi.get(tup1._1), "updatedValue1"),
-                () -> Assertions.assertEquals(dbMainApi.get(tup2._1), "updatedValue2"),
-                () -> Assertions.assertEquals(dbMainApi.get(tup3._1), "updatedValue3"),
-                () -> Assertions.assertEquals(dbMainApi.get(tup4._1), "updatedValue4")
+                () -> Assertions.assertEquals(node.get(tup1._1), "updatedValue1"),
+                () -> Assertions.assertEquals(node.get(tup2._1), "updatedValue2"),
+                () -> Assertions.assertEquals(node.get(tup3._1), "updatedValue3"),
+                () -> Assertions.assertEquals(node.get(tup4._1), "updatedValue4")
         );
 
         Assertions.assertAll(
@@ -150,11 +153,11 @@ public class DatabaseIntegrationTest {
 
     @Test
     public void assertRemoveInMemory() {
-        dbMainApi.put("memoryKey1", "memoryValue1");
-        dbMainApi.remove("memoryKey1");
+        node.put("memoryKey1", "memoryValue1");
+        node.remove("memoryKey1");
 
         Assertions.assertAll(
-                () -> Assertions.assertNull(dbMainApi.get("memoryKey1"))
+                () -> Assertions.assertNull(node.get("memoryKey1"))
         );
     }
 
@@ -165,21 +168,21 @@ public class DatabaseIntegrationTest {
         Tuple2<String, String> tup3 = Tuple.of("diskKey3", "diskValue3");
         Tuple2<String, String> tup4 = Tuple.of("memoryKey1", "memoryValue1");
 
-        dbMainApi.put(tup1._1, tup1._2);
-        dbMainApi.put(tup2._1, tup2._2);
-        dbMainApi.put(tup3._1, tup3._2);
-        dbMainApi.put(tup4._1, tup4._2);
+        node.put(tup1._1, tup1._2);
+        node.put(tup2._1, tup2._2);
+        node.put(tup3._1, tup3._2);
+        node.put(tup4._1, tup4._2);
 
-        dbMainApi.remove(tup1._1);
-        dbMainApi.remove(tup2._1);
-        dbMainApi.remove(tup3._1);
-        dbMainApi.remove(tup4._1);
+        node.remove(tup1._1);
+        node.remove(tup2._1);
+        node.remove(tup3._1);
+        node.remove(tup4._1);
 
         Assertions.assertAll(
-                () -> Assertions.assertNull(dbMainApi.get(tup1._1)),
-                () -> Assertions.assertNull(dbMainApi.get(tup2._1)),
-                () -> Assertions.assertNull(dbMainApi.get(tup3._1)),
-                () -> Assertions.assertNull(dbMainApi.get(tup4._1))
+                () -> Assertions.assertNull(node.get(tup1._1)),
+                () -> Assertions.assertNull(node.get(tup2._1)),
+                () -> Assertions.assertNull(node.get(tup3._1)),
+                () -> Assertions.assertNull(node.get(tup4._1))
         );
     }
 }

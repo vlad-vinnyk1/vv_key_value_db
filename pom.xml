@@ -16,6 +16,7 @@
         <guava.version>19.0</guava.version>
         <apache.commons.version>3.12.0</apache.commons.version>
         <super.csv.version>2.0.1</super.csv.version>
+        <spark.version>3.2.0</spark.version>
     </properties>
     <dependencies>
         <dependency>
@@ -33,11 +34,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${apache.commons.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>net.sf.supercsv</groupId>
@@ -65,7 +61,11 @@
             <artifactId>slf4j-simple</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sketch_2.13</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>

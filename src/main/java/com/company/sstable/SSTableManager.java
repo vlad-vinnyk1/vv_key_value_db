@@ -1,7 +1,7 @@
-package com.company;
+package com.company.sstable;
 
-import com.company.properties.Properties;
-import io.vavr.control.Try;
+import com.company.config.PropertiesService;
+import com.company.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
@@ -12,28 +12,26 @@ import org.supercsv.io.CsvListWriter;
 import org.supercsv.io.ICsvListWriter;
 import org.supercsv.prefs.CsvPreference;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.Reader;
 import java.nio.file.Path;
-import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 
 @RequiredArgsConstructor
 @Log4j2
 @Service
-public class SSTableHelper {
-    private final Properties props;
+public class SSTableManager {
+    private final PropertiesService props;
 
     @SneakyThrows
     public String dumpMapToDisk(String ssTablesPath, Map<String, String> map) {
-        Utils.createDirs(ssTablesPath);
-        String filePath = ssTablesPath + "/" + fileName();
+        String filePath = ssTablesPath + "/" + Utils.randomFileNameWithExtension(".csv");
         FileWriter output = new FileWriter(filePath);
         try (ICsvListWriter listWriter = new CsvListWriter(output, CsvPreference.STANDARD_PREFERENCE)) {
             for (Map.Entry<String, String> entry : map.entrySet()) {
@@ -47,18 +45,13 @@ public class SSTableHelper {
     @SneakyThrows
     public String searchInLogFiles(String key) {
         String ssTablePath = props.ssTablePath();
-        List<String> sortedLogFiles = listFiles(ssTablePath)
+        List<String> sortedLogFiles = Utils.listFiles(ssTablePath)
                 .map(Path::toAbsolutePath)
                 .map(Path::toString)
                 .sorted(Comparator.reverseOrder())
                 .collect(Collectors.toList());
 
         return searchInLogFiles(key, sortedLogFiles);
-    }
-
-    @SneakyThrows
-    private Stream<Path> listFiles(String ssTablePath) throws IOException {
-        return Try.ofSupplier(() -> Utils.list(ssTablePath)).getOrElse(Stream.empty());
     }
 
     @SneakyThrows
@@ -92,13 +85,5 @@ public class SSTableHelper {
         }
 
         return res;
-    }
-
-    private String fileName() {
-        long epochSecond = Instant.now().getEpochSecond();
-        long nano = Instant.now().getNano();
-        String randomPart = randomAlphabetic(8);
-
-        return epochSecond + "_" + nano + "_" + randomPart + ".csv";
     }
 }

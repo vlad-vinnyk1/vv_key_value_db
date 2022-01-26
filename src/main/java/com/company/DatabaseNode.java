@@ -1,13 +1,13 @@
 package com.company;
 
-import com.company.operations.MutatePath;
-import com.company.operations.ReadPath;
+import com.company.service.MutatePath;
+import com.company.service.ReadPath;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
-public class DatabaseOperations {
+public class DatabaseNode {
 
     private final ReadPath read;
 
