@@ -18,11 +18,13 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 @Service
 public class BloomFilterCompactor {
     public BloomFilter merge(String path, long bloomFilterExpectedElementsNumber) {
-        return Utils.listFiles(path)
+        BloomFilter mergedBloomFilter = Utils.listFiles(path)
                 .map(this::toInputStream)
                 .map(this::readFrom)
                 .reduce(this::mergeInPlace)
                 .orElse(BloomFilter.create(bloomFilterExpectedElementsNumber));
+        rewriteBloomFilter(mergedBloomFilter, path);
+        return mergedBloomFilter;
     }
 
     @SneakyThrows
