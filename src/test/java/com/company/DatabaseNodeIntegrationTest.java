@@ -17,29 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-public class DatabaseNodeIntegrationTest {
-    @Autowired
-    private PropertiesService props;
-
-    @Autowired
-    private DatabaseNode node;
-
-    @Autowired
-    private BloomFilterManager bloomFilter;
-
-    @Autowired
-    private MemoryCache memoryCache;
-
-    @Autowired
-    private SSTableManager ssTable;
-
-    @SneakyThrows
-    @AfterEach
-    public void cleanUp() {
-        ssTable.purge();
-        bloomFilter.purge();
-        memoryCache.purge();
-    }
+public class DatabaseNodeIntegrationTest extends BaseTest {
 
     @Test
     public void assertKeyAddedAndRetrievedFromMemory() {

@@ -14,12 +14,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.company.utils.Utils.Constants.TOMB;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 
 @Log4j2
 @UtilityClass
 public class Utils {
-    public String createDirs(String path) {
+    public static String createDirs(String path) {
         if (new File(path).mkdirs()) {
             log.info("File '{}' has been created", path);
         }
@@ -27,7 +28,7 @@ public class Utils {
         return path;
     }
 
-    public String randomFileNameWithExtension(String ext) {
+    public static String randomFileNameWithExtension(String ext) {
         long epochSecond = Instant.now().getEpochSecond();
         long nano = Instant.now().getNano();
         String randomPart = randomAlphabetic(8);
@@ -35,7 +36,7 @@ public class Utils {
         return epochSecond + "_" + nano + "_" + randomPart + ext;
     }
 
-    public Stream<Path> listFiles(String ssTablePath) {
+    public static Stream<Path> listFiles(String ssTablePath) {
         Path path = Path.of(ssTablePath);
         return Try.ofSupplier(() -> listFiles(path)).getOrElse(Stream.empty());
     }
@@ -51,6 +52,14 @@ public class Utils {
     @SneakyThrows
     private Stream<Path> listFiles(Path path) {
         return Files.list(path);
+    }
+
+    public static boolean isTomb(String str) {
+        return TOMB.equals(str);
+    }
+
+    public static boolean isNotTomb(String str) {
+        return !isTomb(str);
     }
 
     public static class Constants {

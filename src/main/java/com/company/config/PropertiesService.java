@@ -12,6 +12,9 @@ public class PropertiesService {
     @Value("${sstable.disk.dump.threshold}")
     private int SSTableDumpThreshold;
 
+    @Value("${sstable.compactor.file.number.threshold}")
+    private long compactCounter;
+
     @Value("${bloom.filter.expectedElementsNumber}")
     private long bloomFilterExpectedElementsNumber;
 
@@ -29,6 +32,10 @@ public class PropertiesService {
 
     public int SSTableDumpThreshold() {
         return SSTableDumpThreshold;
+    }
+
+    public long compactCounter() {
+        return compactCounter;
     }
 
 }
