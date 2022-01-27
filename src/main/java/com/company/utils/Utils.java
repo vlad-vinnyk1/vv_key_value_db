@@ -9,6 +9,9 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
@@ -35,6 +38,14 @@ public class Utils {
     public Stream<Path> listFiles(String ssTablePath) {
         Path path = Path.of(ssTablePath);
         return Try.ofSupplier(() -> listFiles(path)).getOrElse(Stream.empty());
+    }
+
+    public static List<String> listFilesInSortedOrder(String path) {
+        return Utils.listFiles(path)
+                .map(Path::toAbsolutePath)
+                .map(Path::toString)
+                .sorted(Comparator.reverseOrder())
+                .collect(Collectors.toList());
     }
 
     @SneakyThrows

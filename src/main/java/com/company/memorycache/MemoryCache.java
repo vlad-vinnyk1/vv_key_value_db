@@ -1,5 +1,6 @@
 package com.company.memorycache;
 
+import com.company.bloomfilter.BloomFilterManager;
 import com.company.config.PropertiesService;
 import com.company.sstable.SSTableManager;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,9 @@ public class MemoryCache {
     }
 
     public void purge() {
-        inMemAVLTree = Collections.synchronizedMap(new TreeMap<>());
+        synchronized (MemoryCache.class) {
+            inMemAVLTree = Collections.synchronizedMap(new TreeMap<>());
+        }
     }
 
     private void dumpOnDiskIfNeeded() {

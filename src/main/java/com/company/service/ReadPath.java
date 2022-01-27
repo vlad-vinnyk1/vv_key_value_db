@@ -22,7 +22,15 @@ public class ReadPath {
     }
 
     private String search(String key) {
-        String value = memoryCache.get(key) != null ? memoryCache.get(key) : ssTableManager.searchInLogFiles(key);
-        return !TOMB.equals(value) ? value : null;
+        String value = isInMemoryCache(key) ? memoryCache.get(key) : ssTableManager.searchInLogFiles(key);
+        return isNotTomb(value) ? value : null;
+    }
+
+    private boolean isInMemoryCache(String key) {
+        return memoryCache.get(key) != null;
+    }
+
+    private boolean isNotTomb(String value) {
+        return !TOMB.equals(value);
     }
 }
