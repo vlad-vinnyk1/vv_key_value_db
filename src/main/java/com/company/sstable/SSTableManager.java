@@ -47,7 +47,7 @@ public class SSTableManager {
                 .orElse(null);
     }
 
-    // For tests
+    // For tests only.
     @SneakyThrows
     public synchronized void purge() {
         FileUtils.deleteDirectory(new File(props.ssTablePath()));

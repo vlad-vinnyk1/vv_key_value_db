@@ -1,6 +1,5 @@
 package com.company.sstable.csv;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Builder
 @Data
 @RequiredArgsConstructor
-public class CsvDto {
+public class CsvFileRecord {
     final String key;
 
     final String value;

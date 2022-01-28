@@ -1,6 +1,6 @@
 package com.company.utils;
 
-import com.company.sstable.csv.CsvDto;
+import com.company.sstable.csv.CsvFileRecord;
 import com.company.sstable.csv.CsvFileIterator;
 import io.vavr.control.Try;
 import lombok.SneakyThrows;
@@ -44,7 +44,7 @@ public class Utils {
         return Try.ofSupplier(() -> listFiles(path)).getOrElse(Stream.empty());
     }
 
-    public static Stream<CsvDto> fromIteratorToStream(CsvFileIterator csvFileIterator) {
+    public static Stream<CsvFileRecord> fromIteratorToStream(CsvFileIterator csvFileIterator) {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(csvFileIterator, Spliterator.ORDERED), false);
     }
 

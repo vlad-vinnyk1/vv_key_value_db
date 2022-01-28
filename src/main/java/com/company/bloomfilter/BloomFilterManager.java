@@ -19,7 +19,6 @@ public class BloomFilterManager {
 
     public BloomFilterManager(PropertiesService propertiesService, BloomFilterCompactor compactor) {
         this.propertiesService = propertiesService;
-
         bloomFilter = compactor.merge(
                 propertiesService.bloomFilterPath(),
                 propertiesService.bloomFilterExpectedElementsNumber()
@@ -34,7 +33,7 @@ public class BloomFilterManager {
         return bloomFilter.mightContain(key);
     }
 
-    // For tests
+    // For tests only.
     @SneakyThrows
     public synchronized void purge() {
         bloomFilter = BloomFilter.create(propertiesService.bloomFilterExpectedElementsNumber());

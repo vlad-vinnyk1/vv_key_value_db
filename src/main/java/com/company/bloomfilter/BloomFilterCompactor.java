@@ -17,7 +17,7 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 @Log4j2
 @Service
 public class BloomFilterCompactor {
-    public BloomFilter merge(String path, long bloomFilterExpectedElementsNumber) {
+    public synchronized BloomFilter merge(String path, long bloomFilterExpectedElementsNumber) {
         BloomFilter mergedBloomFilter = Utils.listFiles(path)
                 .map(Utils::toInputStream)
                 .map(this::readFrom)

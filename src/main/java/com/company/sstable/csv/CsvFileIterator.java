@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 // Iterator that wraps up the "org.supercsv.io: functionality for convenience.
-public class CsvFileIterator implements Iterator<CsvDto> {
+public class CsvFileIterator implements Iterator<CsvFileRecord> {
     private final CsvListReader csvReader;
     private final String filePath;
     private List<String> next = null;
@@ -31,9 +31,9 @@ public class CsvFileIterator implements Iterator<CsvDto> {
     }
 
     @Override
-    public synchronized CsvDto next() {
+    public synchronized CsvFileRecord next() {
         Objects.requireNonNull(next, "Next is null, consider call hasNext before");
-        return CsvDto.builder()
+        return CsvFileRecord.builder()
                 .key(next.get(0))
                 .value(next.get(1))
                 .fileName(filePath)

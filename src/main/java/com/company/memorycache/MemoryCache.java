@@ -41,7 +41,7 @@ public class MemoryCache {
         avlTree.put(key, TOMB);
     }
 
-    // For tests
+    // For tests only.
     public synchronized void purge() {
         avlTree = Collections.synchronizedMap(new TreeMap<>());
     }
