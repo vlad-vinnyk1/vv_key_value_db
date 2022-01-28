@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
+// Iterator that wraps up the "org.supercsv.io: functionality for convenience.
 public class CsvFileIterator implements Iterator<CsvDto> {
     private final CsvListReader csvReader;
     private final String filePath;

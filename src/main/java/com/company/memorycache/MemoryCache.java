@@ -16,39 +16,43 @@ import static com.company.utils.Utils.Constants.TOMB;
 @Log4j2
 @Service
 public class MemoryCache {
-    private Map<String, String> inMemAVLTree = Collections.synchronizedMap(new TreeMap<>());
+    private Map<String, String> avlTree = Collections.synchronizedMap(new TreeMap<>());
     private final SSTableManager ssTable;
     private final PropertiesService props;
 
     public String get(String key) {
-        return inMemAVLTree.get(key);
+        return avlTree.get(key);
     }
 
     public void put(String key, String value) {
-        inMemAVLTree.put(key, value);
+        avlTree.put(key, value);
         dumpOnDiskIfNeeded();
     }
 
+    public boolean contains(String key) {
+        return avlTree.containsKey(key);
+    }
+
     public int size() {
-        return inMemAVLTree.size();
+        return avlTree.size();
     }
 
     public void remove(String key) {
-        inMemAVLTree.put(key, TOMB);
+        avlTree.put(key, TOMB);
     }
 
     public void purge() {
         synchronized (MemoryCache.class) {
-            inMemAVLTree = Collections.synchronizedMap(new TreeMap<>());
+            avlTree = Collections.synchronizedMap(new TreeMap<>());
         }
     }
 
     private void dumpOnDiskIfNeeded() {
-        if (inMemAVLTree.size() >= props.SSTableDumpThreshold()) {
+        if (avlTree.size() >= props.SSTableDumpThreshold()) {
             synchronized (MemoryCache.class) {
-                String filePath = ssTable.dumpMapToDisk(props.ssTablePath(), inMemAVLTree);
+                String filePath = ssTable.write(props.ssTablePath(), avlTree);
                 log.info("AVL Tree has been dumped to: " + filePath);
-                inMemAVLTree = Collections.synchronizedMap(new TreeMap<>());
+                avlTree = Collections.synchronizedMap(new TreeMap<>());
             }
         }
     }

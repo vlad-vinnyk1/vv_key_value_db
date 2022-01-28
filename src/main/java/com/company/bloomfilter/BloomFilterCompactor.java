@@ -19,27 +19,24 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 public class BloomFilterCompactor {
     public BloomFilter merge(String path, long bloomFilterExpectedElementsNumber) {
         BloomFilter mergedBloomFilter = Utils.listFiles(path)
-                .map(this::toInputStream)
+                .map(Utils::toInputStream)
                 .map(this::readFrom)
                 .reduce(this::mergeInPlace)
                 .orElse(BloomFilter.create(bloomFilterExpectedElementsNumber));
-        rewriteBloomFilter(mergedBloomFilter, path);
-        return mergedBloomFilter;
+
+        return rewriteBloomFilterFolder(mergedBloomFilter, path);
     }
 
     @SneakyThrows
-    public void rewriteBloomFilter(BloomFilter bloomFilter, String bloomFilterPath) {
+    private BloomFilter rewriteBloomFilterFolder(BloomFilter bloomFilter, String bloomFilterPath) {
         FileUtils.cleanDirectory(new File(bloomFilterPath));
         bloomFilter.writeTo(
                 Files.newOutputStream(
                         Path.of(bloomFilterPath + "/" + Utils.randomFileNameWithExtension(EMPTY))
                 )
         );
-    }
 
-    @SneakyThrows
-    protected InputStream toInputStream(Path path) {
-        return Files.newInputStream(path);
+        return bloomFilter;
     }
 
     @SneakyThrows

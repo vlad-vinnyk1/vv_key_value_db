@@ -3,6 +3,7 @@ package com.company.sstable;
 import com.company.sstable.csv.CSVFileDao;
 import com.company.sstable.csv.CsvDto;
 import com.company.sstable.csv.CsvFileIterator;
+import com.company.utils.Utils;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -25,42 +26,45 @@ public class SSTableCompactor {
                 .collect(Collectors.toList());
 
         Map<String, String> inMemAVLTree = Collections.synchronizedMap(new TreeMap<>());
-        PriorityQueue<CsvDto> heap = initHeap(iterators);
-        while (!heap.isEmpty()) {
-            CsvDto current = heap.poll();
-            if (isNotTomb(current.getValue())) {
-                inMemAVLTree.put(current.getKey(), current.getValue());
+
+        // Classic algo: Merge Files lazily through iterator + PriorityQueue to speed up searching.
+        // Initializing the heap by first elements of each file.
+        PriorityQueue<CsvDto> minHeap = initMinHeap(iterators);
+
+        while (!minHeap.isEmpty()) {
+            CsvDto currElement = minHeap.poll();
+            if (isNotTomb(currElement.getValue())) {
+                inMemAVLTree.put(currElement.getKey(), currElement.getValue());
             }
-            putNextElementToHeap(heap, current);
-            skipOutdatedElements(heap, current);
+            // As corresponding to the iterator element was polled, we need to add the next one.
+            addNextElementToHeapFromIterator(minHeap, currElement);
+            // If there are keys in the heap that are equal to currentElement.key, they are considered outdated and should be removed.
+            removeAllKeysFromHeap(currElement.getKey(), minHeap);
         }
 
         return CSVFileDao.reWrite(path, inMemAVLTree);
     }
 
-    private void skipOutdatedElements(PriorityQueue<CsvDto> heap, CsvDto current) {
-        while (heap.peek() != null && StringUtils.equals(heap.peek().getKey(), current.getKey())) {
-            putNextElementToHeap(heap, heap.poll());
+    private void removeAllKeysFromHeap(String keyToRemove, PriorityQueue<CsvDto> heap) {
+        while (heap.peek() != null && StringUtils.equals(heap.peek().getKey(), keyToRemove)) {
+            addNextElementToHeapFromIterator(heap, heap.poll());
         }
     }
 
-    private void putNextElementToHeap(PriorityQueue<CsvDto> heap, CsvDto element) {
+    private void addNextElementToHeapFromIterator(PriorityQueue<CsvDto> heap, CsvDto element) {
         if (element.getIteratorReference().hasNext()) {
             heap.add(element.getIteratorReference().next());
         }
     }
 
-    private PriorityQueue<CsvDto> initHeap(List<CsvFileIterator> iterators) {
-        PriorityQueue<CsvDto> res = new PriorityQueue<>(getCsvDtoComparator());
-        iterators.stream()
+    private PriorityQueue<CsvDto> initMinHeap(List<CsvFileIterator> iterators) {
+        return io.vavr.collection.List.ofAll(iterators.stream())
                 .map(a -> a.hasNext() ? a.next() : null)
                 .filter(Objects::nonNull)
-                .forEach(res::add);
-
-        return res;
+                .foldLeft(new PriorityQueue<>(comparator()), Utils::addInFunctionalWay);
     }
 
-    private Comparator<CsvDto> getCsvDtoComparator() {
+    private Comparator<CsvDto> comparator() {
         return Comparator.comparing(CsvDto::getKey).thenComparing(Comparator.comparing(CsvDto::getFileName).reversed());
     }
 }

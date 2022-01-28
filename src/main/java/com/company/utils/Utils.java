@@ -1,18 +1,21 @@
 package com.company.utils;
 
+import com.company.sstable.csv.CsvDto;
+import com.company.sstable.csv.CsvFileIterator;
 import io.vavr.control.Try;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j2;
 
 import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static com.company.utils.Utils.Constants.TOMB;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
@@ -41,12 +44,28 @@ public class Utils {
         return Try.ofSupplier(() -> listFiles(path)).getOrElse(Stream.empty());
     }
 
+    public static Stream<CsvDto> fromIteratorToStream(CsvFileIterator csvFileIterator) {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(csvFileIterator, Spliterator.ORDERED), false);
+    }
+
     public static List<String> listFilesInSortedOrder(String path) {
         return Utils.listFiles(path)
                 .map(Path::toAbsolutePath)
                 .map(Path::toString)
                 .sorted(Comparator.reverseOrder())
                 .collect(Collectors.toList());
+    }
+
+    // The workaround of the Java API does not allow doing stuff in a functional way.
+    public  <T> PriorityQueue<T> addInFunctionalWay(PriorityQueue<T> q, T element) {
+        q.add(element);
+        return q;
+    }
+
+    // The workaround of the Java API to wrap java checked exceptions.
+    @SneakyThrows
+    public InputStream toInputStream(Path path) {
+        return Files.newInputStream(path);
     }
 
     @SneakyThrows

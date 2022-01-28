@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
-import static com.company.utils.Utils.Constants.TOMB;
+import static com.company.utils.Utils.isNotTomb;
 
 @Log4j2
 @RequiredArgsConstructor
@@ -22,15 +22,7 @@ public class ReadPath {
     }
 
     private String search(String key) {
-        String value = isInMemoryCache(key) ? memoryCache.get(key) : ssTableManager.searchInLogFiles(key);
+        String value = memoryCache.contains(key) ? memoryCache.get(key) : ssTableManager.get(key);
         return isNotTomb(value) ? value : null;
-    }
-
-    private boolean isInMemoryCache(String key) {
-        return memoryCache.get(key) != null;
-    }
-
-    private boolean isNotTomb(String value) {
-        return !TOMB.equals(value);
     }
 }

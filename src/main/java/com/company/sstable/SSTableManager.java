@@ -10,7 +10,6 @@ import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,7 +25,7 @@ public class SSTableManager {
     private final AtomicInteger filesWritten = new AtomicInteger(0);
 
     @SneakyThrows
-    public String dumpMapToDisk(String ssTablesPath, Map<String, String> map) {
+    public String write(String ssTablesPath, Map<String, String> map) {
         String filePath = CSVFileDao.write(ssTablesPath, map);
         filesWritten.incrementAndGet();
         if (isTimeToCompact()) {
@@ -38,26 +37,19 @@ public class SSTableManager {
     }
 
     @SneakyThrows
-    public String searchInLogFiles(String key) {
-        return searchInLogFiles(
-                key,
-                Utils.listFilesInSortedOrder(props.ssTablePath())
-        );
-    }
-
-    @SneakyThrows
-    public void purge() {
-        FileUtils.deleteDirectory(new File(props.ssTablePath()));
-    }
-
-    // TODO Binary search can be used somehow instead of loading all files one by one???
-    private String searchInLogFiles(String key, List<String> logFiles) {
-        return logFiles.stream()
+    // TODO Binary search. Need to think about some algo and Data Structure to perform Binary Search on disk, without loading all in memory???
+    public String get(String key) {
+        return Utils.listFilesInSortedOrder(props.ssTablePath()).stream()
                 .map(CSVFileDao::read)
                 .map(logMap -> logMap.get(key))
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(null);
+    }
+
+    @SneakyThrows
+    public void purge() {
+        FileUtils.deleteDirectory(new File(props.ssTablePath()));
     }
 
     private boolean isTimeToCompact() {

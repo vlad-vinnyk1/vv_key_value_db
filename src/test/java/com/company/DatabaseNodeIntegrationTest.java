@@ -1,17 +1,10 @@
 package com.company;
 
-import com.company.bloomfilter.BloomFilterManager;
-import com.company.config.PropertiesService;
-import com.company.memorycache.MemoryCache;
-import com.company.sstable.SSTableManager;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import lombok.SneakyThrows;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -38,7 +31,7 @@ public class DatabaseNodeIntegrationTest extends BaseTest {
         Assertions.assertAll(
                 () -> Assertions.assertTrue(bloomFilter.mightContain(key)),
                 () -> Assertions.assertEquals(memoryCache.get(key), expected),
-                () -> Assertions.assertNull(ssTable.searchInLogFiles(key))
+                () -> Assertions.assertNull(ssTable.get(key))
         );
     }
 
@@ -78,10 +71,10 @@ public class DatabaseNodeIntegrationTest extends BaseTest {
                 () -> Assertions.assertEquals(memoryCache.size(), 1),
                 () -> Assertions.assertEquals(memoryCache.get(tup4._1), tup4._2),
                 () -> Assertions.assertNull(memoryCache.get(tup1._1)),
-                () -> Assertions.assertEquals(ssTable.searchInLogFiles(tup1._1), tup1._2),
-                () -> Assertions.assertEquals(ssTable.searchInLogFiles(tup2._1), tup2._2),
-                () -> Assertions.assertEquals(ssTable.searchInLogFiles(tup3._1), tup3._2),
-                () -> Assertions.assertNull(ssTable.searchInLogFiles(tup4._1))
+                () -> Assertions.assertEquals(ssTable.get(tup1._1), tup1._2),
+                () -> Assertions.assertEquals(ssTable.get(tup2._1), tup2._2),
+                () -> Assertions.assertEquals(ssTable.get(tup3._1), tup3._2),
+                () -> Assertions.assertNull(ssTable.get(tup4._1))
         );
     }
 
@@ -92,7 +85,7 @@ public class DatabaseNodeIntegrationTest extends BaseTest {
 
         Assertions.assertAll(
                 () -> Assertions.assertEquals(node.get("memoryKey1"), "memoryValue2Updated"),
-                () -> Assertions.assertNull(ssTable.searchInLogFiles("memoryKey1"))
+                () -> Assertions.assertNull(ssTable.get("memoryKey1"))
         );
     }
 
@@ -121,9 +114,9 @@ public class DatabaseNodeIntegrationTest extends BaseTest {
         );
 
         Assertions.assertAll(
-                () -> Assertions.assertEquals(ssTable.searchInLogFiles(tup1._1), "updatedValue1"),
-                () -> Assertions.assertEquals(ssTable.searchInLogFiles(tup2._1), "updatedValue2"),
-                () -> Assertions.assertEquals(ssTable.searchInLogFiles(tup3._1), "diskValue3"),
+                () -> Assertions.assertEquals(ssTable.get(tup1._1), "updatedValue1"),
+                () -> Assertions.assertEquals(ssTable.get(tup2._1), "updatedValue2"),
+                () -> Assertions.assertEquals(ssTable.get(tup3._1), "diskValue3"),
                 () -> Assertions.assertEquals(memoryCache.get(tup3._1), "updatedValue3"),
                 () -> Assertions.assertEquals(memoryCache.get(tup4._1), "updatedValue4")
         );

@@ -15,13 +15,10 @@ public class BloomFilterManager {
 
     private BloomFilter bloomFilter;
 
-    private final BloomFilterCompactor compactor;
-
     private final PropertiesService propertiesService;
 
     public BloomFilterManager(PropertiesService propertiesService, BloomFilterCompactor compactor) {
         this.propertiesService = propertiesService;
-        this.compactor = compactor;
 
         bloomFilter = compactor.merge(
                 propertiesService.bloomFilterPath(),
