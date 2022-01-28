@@ -47,8 +47,9 @@ public class SSTableManager {
                 .orElse(null);
     }
 
+    // For tests
     @SneakyThrows
-    public void purge() {
+    public synchronized void purge() {
         FileUtils.deleteDirectory(new File(props.ssTablePath()));
     }
 

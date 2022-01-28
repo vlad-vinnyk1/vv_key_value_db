@@ -26,7 +26,7 @@ public class MemoryCache {
 
     public void put(String key, String value) {
         avlTree.put(key, value);
-        dumpOnDiskIfNeeded();
+        dumpOnDisk();
     }
 
     public boolean contains(String key) {
@@ -41,15 +41,14 @@ public class MemoryCache {
         avlTree.put(key, TOMB);
     }
 
-    public void purge() {
-        synchronized (MemoryCache.class) {
-            avlTree = Collections.synchronizedMap(new TreeMap<>());
-        }
+    // For tests
+    public synchronized void purge() {
+        avlTree = Collections.synchronizedMap(new TreeMap<>());
     }
 
-    private void dumpOnDiskIfNeeded() {
-        if (avlTree.size() >= props.SSTableDumpThreshold()) {
-            synchronized (MemoryCache.class) {
+    private void dumpOnDisk() {
+        synchronized (MemoryCache.class) {
+            if (avlTree.size() >= props.SSTableDumpThreshold()) {
                 String filePath = ssTable.write(props.ssTablePath(), avlTree);
                 log.info("AVL Tree has been dumped to: " + filePath);
                 avlTree = Collections.synchronizedMap(new TreeMap<>());

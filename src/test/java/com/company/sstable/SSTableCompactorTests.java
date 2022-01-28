@@ -1,6 +1,6 @@
 package com.company.sstable;
 
-import com.company.BaseTest;
+import com.company.utils.BaseTest;
 import com.company.sstable.csv.CSVFileDao;
 import com.company.utils.Utils;
 import lombok.SneakyThrows;

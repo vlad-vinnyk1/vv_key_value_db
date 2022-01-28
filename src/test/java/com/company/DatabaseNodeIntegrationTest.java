@@ -1,5 +1,6 @@
 package com.company;
 
+import com.company.utils.BaseTest;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import org.junit.jupiter.api.Assertions;

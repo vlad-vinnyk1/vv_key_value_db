@@ -34,11 +34,10 @@ public class BloomFilterManager {
         return bloomFilter.mightContain(key);
     }
 
+    // For tests
     @SneakyThrows
-    public void purge() {
-        synchronized (BloomFilterManager.class) {
-            bloomFilter = BloomFilter.create(propertiesService.bloomFilterExpectedElementsNumber());
-            FileUtils.cleanDirectory(new File(propertiesService.bloomFilterPath()));
-        }
+    public synchronized void purge() {
+        bloomFilter = BloomFilter.create(propertiesService.bloomFilterExpectedElementsNumber());
+        FileUtils.cleanDirectory(new File(propertiesService.bloomFilterPath()));
     }
 }
