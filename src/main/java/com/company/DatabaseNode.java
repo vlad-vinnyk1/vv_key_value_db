@@ -1,6 +1,6 @@
 package com.company;
 
-import com.company.service.MutatePath;
+import com.company.service.UpdatePath;
 import com.company.service.ReadPath;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,18 +11,18 @@ public class DatabaseNode {
 
     private final ReadPath read;
 
-    private final MutatePath mutate;
+    private final UpdatePath update;
 
     public void put(String key, String value) {
-        mutate.put(key, value);
+        update.put(key, value);
     }
 
     public void update(String key, String value) {
-        mutate.put(key, value);
+        update.put(key, value);
     }
 
     public void remove(String key) {
-        mutate.remove(key);
+        update.remove(key);
     }
 
     public String get(String key) {

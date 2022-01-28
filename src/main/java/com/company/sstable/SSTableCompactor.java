@@ -29,6 +29,7 @@ public class SSTableCompactor {
 
         // Classic algo: Merge Files lazily through iterator + PriorityQueue to speed up searching.
         // Initializing the heap by first elements of each file.
+        // TODO Potential memory leak in case of many elements, this should be splittable.
         PriorityQueue<CsvFileRecord> recordsHeap = initMinHeap(csvFilesIterators);
 
         while (!recordsHeap.isEmpty()) {

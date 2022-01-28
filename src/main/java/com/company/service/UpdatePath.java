@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Log4j2
 @RequiredArgsConstructor
 @Service
-public class MutatePath {
+public class UpdatePath {
     private final MemoryCache memoryCache;
     private final BloomFilterManager bloomFilter;
 
